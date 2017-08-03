@@ -10,6 +10,7 @@ The ``zen.nx`` module provides functions for converting graph objects to and fro
 from graph import Graph
 from digraph import DiGraph
 import networkx
+import random
 
 __all__ = ['to_networkx','from_networkx']	
 
@@ -83,7 +84,7 @@ def to_networkx(G):
 # 	else:
 # 		raise Exception, 'Unable to convert graph object type %s' % str(type(G))
 	
-def from_networkx(G):
+def from_networkx(G,shuffle=False):
 	"""
 	Convert a NetworkX graph into a Zen graph object.
 	
@@ -102,11 +103,20 @@ def from_networkx(G):
 		Gdest = Graph()
 	else:
 		raise Exception, 'Unable to convert graph object type %s' % str(type(G))
-	
+	#
 	# add nodes	
-	for n,nd in G.nodes_iter(data=True):
-		Gdest.add_node(n,nd)
-		
+	if shuffle:
+		# Shuffle the node list before adding, to add randomness to the matching algrithms
+		shuffle_list = []
+		for n,nd in G.nodes_iter(data=True):
+			shuffle_list.append((n,nd))
+		random.shuffle(shuffle_list)
+		for n in shuffle_list:
+			Gdest.add_node(n[0],n[1])
+	else:
+		for n,nd in G.nodes_iter(data=True):
+			Gdest.add_node(n,nd)
+            
 	# add edges
 	for x,y,ed in G.edges_iter(data=True):
 		Gdest.add_edge(x,y,ed)
